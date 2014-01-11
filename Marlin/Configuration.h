@@ -16,12 +16,12 @@
 // startup. Implementation of an idea by Prof Braino to inform user that any changes made to this
 // build by the user have been successfully uploaded into firmware.
 #define STRING_VERSION_CONFIG_H __DATE__ " " __TIME__ // build date and time
-#define STRING_CONFIG_H_AUTHOR "(David Braam)" //Who made the changes.
+#define STRING_CONFIG_H_AUTHOR "(Extensio.ru)" //Who made the changes.
 
 //                      |01234567890123456789|
-#define VERSION_BASE    "Ultimaker: 13.12"
+#define VERSION_BASE    "Joysmaker: 14.01"
 #ifndef VERSION_PROFILE
-#define VERSION_PROFILE "Github checkout"
+#define VERSION_PROFILE "Extensio.ru"
 #endif
 
 #define VERSION_STRING  VERSION_BASE " (" VERSION_PROFILE ")"
@@ -332,20 +332,20 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 #define Z_MAX_LENGTH (Z_MAX_POS - Z_MIN_POS)
 //============================= Bed Auto Leveling ===========================
 
-//#define ENABLE_AUTO_BED_LEVELING // Delete the comment to enable (remove // at the start of the line)
+#define ENABLE_AUTO_BED_LEVELING // Delete the comment to enable (remove // at the start of the line)
 
 #ifdef ENABLE_AUTO_BED_LEVELING
 
   // these are the positions on the bed to do the probing
-  #define LEFT_PROBE_BED_POSITION 15
-  #define RIGHT_PROBE_BED_POSITION 170
-  #define BACK_PROBE_BED_POSITION 180
-  #define FRONT_PROBE_BED_POSITION 20
+  #define LEFT_PROBE_BED_POSITION 36
+  #define RIGHT_PROBE_BED_POSITION 190
+  #define BACK_PROBE_BED_POSITION 190
+  #define FRONT_PROBE_BED_POSITION 10
 
   // these are the offsets to the prob relative to the extruder tip (Hotend - Probe)
-  #define X_PROBE_OFFSET_FROM_EXTRUDER -25
-  #define Y_PROBE_OFFSET_FROM_EXTRUDER -29
-  #define Z_PROBE_OFFSET_FROM_EXTRUDER -12.35
+  #define X_PROBE_OFFSET_FROM_EXTRUDER 26
+  #define Y_PROBE_OFFSET_FROM_EXTRUDER 9
+  #define Z_PROBE_OFFSET_FROM_EXTRUDER -7 /* Less value means hot end is closer to the platform */
 
   #define Z_RAISE_BEFORE_HOMING 4       // (in mm) Raise Z before homing (G28) for Probe Clearance.
                                         // Be sure you have this distance over your Z_MAX_POS in case
@@ -638,6 +638,7 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 // If unsure, leave commented / disabled
 //
 //#define NUM_SERVOS 3 // Servo index starts with 0 for M280 command
+#define NUM_SERVOS 0/*1*/ // Servo index starts with 0 for M280 command
 
 // Servo Endstops
 //

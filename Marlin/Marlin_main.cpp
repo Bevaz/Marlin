@@ -801,7 +801,7 @@ static void set_bed_level_equation(float z_at_xLeft_yFront, float z_at_xRight_yF
 
     vector_3 xLeftyFront = vector_3(LEFT_PROBE_BED_POSITION, FRONT_PROBE_BED_POSITION, z_at_xLeft_yFront);
     vector_3 xLeftyBack = vector_3(LEFT_PROBE_BED_POSITION, BACK_PROBE_BED_POSITION, z_at_xLeft_yBack);
-    vector_3 xRightyFront = vector_3(RIGHT_PROBE_BED_POSITION, FRONT_PROBE_BED_POSITION, z_at_xRight_yFront);
+    vector_3 xRightyFront = vector_3(RIGHT_PROBE_BED_POSITION, (FRONT_PROBE_BED_POSITION + BACK_PROBE_BED_POSITION) / 2, z_at_xRight_yFront);
 
     vector_3 xPositive = (xRightyFront - xLeftyFront).get_normal();
     vector_3 yPositive = (xLeftyBack - xLeftyFront).get_normal();
@@ -1357,7 +1357,7 @@ void process_commands()
             // prob 3
             do_blocking_move_to(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS] + Z_RAISE_BETWEEN_PROBINGS);
             // the current position will be updated by the blocking move so the head will not lower on this next call.
-            do_blocking_move_to(RIGHT_PROBE_BED_POSITION - X_PROBE_OFFSET_FROM_EXTRUDER, FRONT_PROBE_BED_POSITION - Y_PROBE_OFFSET_FROM_EXTRUDER, current_position[Z_AXIS]);
+            do_blocking_move_to(RIGHT_PROBE_BED_POSITION - X_PROBE_OFFSET_FROM_EXTRUDER, (FRONT_PROBE_BED_POSITION + BACK_PROBE_BED_POSITION) / 2 - Y_PROBE_OFFSET_FROM_EXTRUDER, current_position[Z_AXIS]);
 
             engage_z_probe();   // Engage Z Servo endstop if available
             run_z_probe();
@@ -1367,7 +1367,7 @@ void process_commands()
             SERIAL_PROTOCOLPGM("Bed x: ");
             SERIAL_PROTOCOL(RIGHT_PROBE_BED_POSITION);
             SERIAL_PROTOCOLPGM(" y: ");
-            SERIAL_PROTOCOL(FRONT_PROBE_BED_POSITION);
+            SERIAL_PROTOCOL((FRONT_PROBE_BED_POSITION + BACK_PROBE_BED_POSITION) / 2);
             SERIAL_PROTOCOLPGM(" z: ");
             SERIAL_PROTOCOL(current_position[Z_AXIS]);
             SERIAL_PROTOCOLPGM("\n");
