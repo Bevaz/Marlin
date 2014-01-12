@@ -89,7 +89,7 @@
 	#define MSG_PID_I "PID-I"
 	#define MSG_PID_D "PID-D"
 	#define MSG_PID_C "PID-C"
-	#define MSG_ADD_HOMEING "Z-offset"
+	#define MSG_PROBE_OFFSET "Z-offset"
 	#define MSG_ACC  "Accel"
 	#define MSG_VXY_JERK "Vxy-jerk"
 	#define MSG_VZ_JERK "Vz-jerk"

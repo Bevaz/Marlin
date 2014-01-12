@@ -233,4 +233,8 @@ extern unsigned long stoptime;
 // Handling multiple extruders pins
 extern uint8_t active_extruder;
 
+#ifdef ENABLE_AUTO_BED_LEVELING
+extern float z_probe_offset;
+#endif
+
 #endif
