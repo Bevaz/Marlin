@@ -1177,7 +1177,7 @@
 
 #define SDPOWER            -1
 #define SDSS               53
-#define LED_PIN            13
+#define LED_PIN            -1
 #define FAN_PIN            7
 #define PS_ON_PIN          12
 #define KILL_PIN           -1
@@ -1223,6 +1223,23 @@
     #define SDCARDDETECT -1
   #endif 
 #endif //ULTRA_LCD
+
+  #ifdef NUM_SERVOS
+    #define SERVO0_PIN         13
+
+    #if NUM_SERVOS > 1
+      #define SERVO1_PIN         6 //TODO
+    #endif
+
+    #if NUM_SERVOS > 2
+      #define SERVO2_PIN         5 //TODO
+    #endif
+
+    #if NUM_SERVOS > 3
+      #define SERVO3_PIN         4 //TODO
+    #endif
+  #endif
+
 
 #endif
 
