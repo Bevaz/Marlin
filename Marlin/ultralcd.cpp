@@ -109,7 +109,7 @@ static void menu_action_setting_edit_callback_long5(const char* pstr, unsigned l
 
 /* Helper macros for menus */
 #define START_MENU() do { \
-    if (encoderPosition > 0x8000) encoderPosition = 0; \
+    if (encoderPosition < 0) encoderPosition = 0; \
     if (encoderPosition / ENCODER_STEPS_PER_MENU_ITEM < currentMenuViewOffset) currentMenuViewOffset = encoderPosition / ENCODER_STEPS_PER_MENU_ITEM;\
     uint8_t _lineNr = currentMenuViewOffset, _menuItemNr; \
     bool wasClicked = LCD_CLICKED;\
@@ -153,7 +153,7 @@ volatile uint8_t slow_buttons;//Contains the bits of the currently pressed butto
 uint8_t currentMenuViewOffset;              /* scroll offset in the current menu */
 uint32_t blocking_enc;
 uint8_t lastEncoderBits;
-uint32_t encoderPosition;
+int32_t encoderPosition;
 #if (SDCARDDETECT > 0)
 bool lcd_oldcardstatus;
 #endif
@@ -707,7 +707,7 @@ static void lcd_control_motion_menu()
 {
     START_MENU();
     MENU_ITEM(back, MSG_CONTROL, lcd_control_menu);
-    MENU_ITEM_EDIT(float3, MSG_ADD_HOMEING, &add_homeing[Z_AXIS], 0.1, 990);
+    MENU_ITEM_EDIT(float51, MSG_ADD_HOMEING, &add_homeing[Z_AXIS], -9.9, 9.9);
     MENU_ITEM_EDIT(float5, MSG_ACC, &acceleration, 500, 99000);
     MENU_ITEM_EDIT(float3, MSG_VXY_JERK, &max_xy_jerk, 1, 990);
     MENU_ITEM_EDIT(float52, MSG_VZ_JERK, &max_z_jerk, 0.1, 990);
