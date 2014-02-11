@@ -160,7 +160,7 @@
 // When temperature exceeds max temp, your heater will be switched off.
 // This feature exists to protect your hotend from overheating accidentally, but *NOT* from thermistor short/failure!
 // You should use MINTEMP for thermistor short/failure protection.
-#define HEATER_0_MAXTEMP 275
+#define HEATER_0_MAXTEMP 330/*275*/
 #define HEATER_1_MAXTEMP 275
 #define HEATER_2_MAXTEMP 275
 #define BED_MAXTEMP 150
@@ -343,14 +343,14 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 
   // these are the positions on the bed to do the probing
   #define LEFT_PROBE_BED_POSITION 26
-  #define RIGHT_PROBE_BED_POSITION 190
-  #define BACK_PROBE_BED_POSITION 190
+  #define RIGHT_PROBE_BED_POSITION 170
+  #define BACK_PROBE_BED_POSITION 170
   #define FRONT_PROBE_BED_POSITION 10
 
   // these are the offsets to the prob relative to the extruder tip (Hotend - Probe)
-  #define X_PROBE_OFFSET_FROM_EXTRUDER 16
-  #define Y_PROBE_OFFSET_FROM_EXTRUDER 0
-  #define Z_PROBE_OFFSET_FROM_EXTRUDER -8.0 /* Less value means hot end is closer to the platform */
+  #define X_PROBE_OFFSET_FROM_EXTRUDER 19.3
+  #define Y_PROBE_OFFSET_FROM_EXTRUDER -10.0
+  #define Z_PROBE_OFFSET_FROM_EXTRUDER -9.7 /* Less value means hot end is closer to the platform */
 
   #define Z_RAISE_BEFORE_HOMING 12       // (in mm) Raise Z before homing (G28) for Probe Clearance.
                                         // Be sure you have this distance over your Z_MAX_POS in case
@@ -366,7 +366,7 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
   //The value is the delay to turn the servo off after powered on - depends on the servo speed; 300ms is good value, but you can try lower it.
   // You MUST HAVE the SERVO_ENDSTOPS defined to use here a value higher than zero otherwise your code will not compile.
 
-  #define PROBE_SERVO_DEACTIVATION_DELAY 300
+  #define PROBE_SERVO_DEACTIVATION_DELAY 1000
 
 
 //If you have enabled the Bed Auto Levelling and are using the same Z Probe for Z Homing,
@@ -450,13 +450,13 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 
 
 // Preheat Constants
-#define PLA_PREHEAT_HOTEND_TEMP 210 
+#define PLA_PREHEAT_HOTEND_TEMP 220 
 #define PLA_PREHEAT_HPB_TEMP 70
-#define PLA_PREHEAT_FAN_SPEED 0		// Insert Value between 0 and 255
+#define PLA_PREHEAT_FAN_SPEED 255		// Insert Value between 0 and 255
 
 #define ABS_PREHEAT_HOTEND_TEMP 250
 #define ABS_PREHEAT_HPB_TEMP 100
-#define ABS_PREHEAT_FAN_SPEED 0		// Insert Value between 0 and 255
+#define ABS_PREHEAT_FAN_SPEED 255		// Insert Value between 0 and 255
 
 //LCD and SD support
 //#define ULTRA_LCD  //general lcd support, also 16x2
@@ -679,7 +679,7 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 // Use M206 command to correct for switch height offset to actual nozzle height. Store that setting with M500.
 //
 #define SERVO_ENDSTOPS {-1, -1, 0} // Servo index for X, Y, Z. Disable with -1
-#define SERVO_ENDSTOP_ANGLES {0,0, 0,0, 175,80} // X,Y,Z Axis Extend and Retract angles
+#define SERVO_ENDSTOP_ANGLES {0,0, 0,0, 30,150} // X,Y,Z Axis Extend and Retract angles
 
 #include "Configuration_adv.h"
 #include "thermistortables.h"
