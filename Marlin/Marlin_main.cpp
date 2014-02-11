@@ -1416,6 +1416,7 @@ void process_commands()
                 {
                   // raise before probing
                   do_blocking_move_to(current_position[X_AXIS], current_position[Y_AXIS], Z_RAISE_BEFORE_PROBING);
+                  engage_z_probe();
                 } else
                 {
                   // raise extruder
@@ -1425,10 +1426,10 @@ void process_commands()
 
                 do_blocking_move_to(xProbe - X_PROBE_OFFSET_FROM_EXTRUDER, yProbe - Y_PROBE_OFFSET_FROM_EXTRUDER, current_position[Z_AXIS]);
 
-                engage_z_probe();   // Engage Z Servo endstop if available
+                //engage_z_probe();   // Engage Z Servo endstop if available
                 run_z_probe();
                 eqnBVector[probePointCounter] = current_position[Z_AXIS];
-                retract_z_probe();
+                //retract_z_probe();
 
                 SERIAL_PROTOCOLPGM("Bed x: ");
                 SERIAL_PROTOCOL(xProbe);
@@ -1445,6 +1446,7 @@ void process_commands()
                 xProbe += xInc;
               }
             }
+            retract_z_probe();
             clean_up_after_endstop_move();
 
             // solve lsq problem
