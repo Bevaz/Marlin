@@ -717,7 +717,11 @@ static void lcd_implementation_draw_line(uint8_t row, const char* line)
 static void lcd_implementation_quick_feedback()
 {
 #ifdef LCD_USE_I2C_BUZZER
-    lcd.buzz(60,1000/6);
+	#if !defined(LCD_FEEDBACK_FREQUENCY_HZ) || !defined(LCD_FEEDBACK_FREQUENCY_DURATION_MS)
+	  lcd_buzz(1000/6,100);
+	#else
+	  lcd_buzz(LCD_FEEDBACK_FREQUENCY_DURATION_MS,LCD_FEEDBACK_FREQUENCY_HZ);
+	#endif
 #elif defined(BEEPER) && BEEPER > -1
     SET_OUTPUT(BEEPER);
     for(int8_t i=0;i<10;i++)

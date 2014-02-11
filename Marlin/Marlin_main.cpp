@@ -128,7 +128,7 @@
 // M150 - Set BlinkM Colour Output R: Red<0-255> U(!): Green<0-255> B: Blue<0-255> over i2c, G for green does not work.
 // M190 - Sxxx Wait for bed current temp to reach target temp. Waits only when heating
 //        Rxxx Wait for bed current temp to reach target temp. Waits when heating and cooling
-// M200 - Set filament diameter
+// M200 D<millimeters>- set filament diameter and set E axis units to cubic millimeters (use S0 to set back to millimeters).
 // M201 - Set max acceleration in units/s^2 for print moves (M201 X1000 Y1000)
 // M202 - Set max acceleration in units/s^2 for travel moves (M202 X1000 Y1000) Unused in Marlin!!
 // M203 - Set maximum feedrate that your machine can sustain (M203 X200 Y200 Z300 E10000) in mm/sec
@@ -186,6 +186,14 @@ bool axis_relative_modes[] = AXIS_RELATIVE_MODES;
 int feedmultiply=100; //100->1 200->2
 int saved_feedmultiply;
 int extrudemultiply=100; //100->1 200->2
+float volumetric_multiplier[EXTRUDERS] = {1.0
+  #if EXTRUDERS > 1
+    , 1.0
+    #if EXTRUDERS > 2
+      , 1.0
+    #endif
+  #endif
+};
 float current_position[NUM_AXIS] = { 0.0, 0.0, 0.0, 0.0 };
 float add_homeing[3]={0,0,0};
 #ifdef DELTA
@@ -194,6 +202,7 @@ float endstop_adj[3]={0,0,0};
 float min_pos[3] = { X_MIN_POS, Y_MIN_POS, Z_MIN_POS };
 float max_pos[3] = { X_MAX_POS, Y_MAX_POS, Z_MAX_POS };
 bool axis_known_position[3] = {false, false, false};
+float zprobe_zoffset;
 
 // Extruder offset
 #if EXTRUDERS > 1
@@ -238,9 +247,6 @@ int EtoPPressure=0;
 float delta[3] = {0.0, 0.0, 0.0};
 #endif
 
-#ifdef ENABLE_AUTO_BED_LEVELING
-float z_probe_offset = 0.0;
-#endif
 
 //===========================================================================
 //=============================private variables=============================
@@ -483,6 +489,10 @@ void setup()
 
   #if defined(CONTROLLERFAN_PIN) && CONTROLLERFAN_PIN > -1
     SET_OUTPUT(CONTROLLERFAN_PIN); //Set pin used for driver cooling fan
+  #endif
+
+  #ifdef DIGIPOT_I2C
+    digipot_i2c_init();
   #endif
 }
 
@@ -826,7 +836,7 @@ static void set_bed_level_equation_lsq(double *plane_equation_coefficients)
     current_position[Z_AXIS] = corrected_position.z;
 
     // but the bed at 0 so we don't go below it.
-    current_position[Z_AXIS] = -(Z_PROBE_OFFSET_FROM_EXTRUDER + z_probe_offset);
+    current_position[Z_AXIS] = zprobe_zoffset; // in the lsq we reach here after raising the extruder due to the loop structure
 
     plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
 }
@@ -862,7 +872,7 @@ static void set_bed_level_equation(float z_at_xLeft_yFront, float z_at_xRight_yF
     current_position[Z_AXIS] = corrected_position.z;
 
     // but the bed at 0 so we don't go below it.
-    current_position[Z_AXIS] = -(Z_PROBE_OFFSET_FROM_EXTRUDER + z_probe_offset);
+    current_position[Z_AXIS] = zprobe_zoffset;
 
     plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
 }
@@ -1323,7 +1333,7 @@ void process_commands()
       }
       #ifdef ENABLE_AUTO_BED_LEVELING
         if((home_all_axis) || (code_seen(axis_codes[Z_AXIS]))) {
-          current_position[Z_AXIS] -= (Z_PROBE_OFFSET_FROM_EXTRUDER + z_probe_offset);  //Add Z_Probe offset (the distance is negative)
+          current_position[Z_AXIS] += zprobe_zoffset;  //Add Z_Probe offset (the distance is negative)
         }
       #endif
       plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
@@ -1361,26 +1371,26 @@ void process_commands()
 
             feedrate = homing_feedrate[Z_AXIS];
 #ifdef ACCURATE_BED_LEVELING
-            
+
             int xGridSpacing = (RIGHT_PROBE_BED_POSITION - LEFT_PROBE_BED_POSITION) / (ACCURATE_BED_LEVELING_POINTS-1);
             int yGridSpacing = (BACK_PROBE_BED_POSITION - FRONT_PROBE_BED_POSITION) / (ACCURATE_BED_LEVELING_POINTS-1);
-            
-            
+
+
             // solve the plane equation ax + by + d = z
             // A is the matrix with rows [x y 1] for all the probed points
             // B is the vector of the Z positions
             // the normal vector to the plane is formed by the coefficients of the plane equation in the standard form, which is Vx*x+Vy*y+Vz*z+d = 0
             // so Vx = -a Vy = -b Vz = 1 (we want the vector facing towards positive Z
-            
+
             // "A" matrix of the linear system of equations
             double eqnAMatrix[ACCURATE_BED_LEVELING_POINTS*ACCURATE_BED_LEVELING_POINTS*3];
             // "B" vector of Z points
             double eqnBVector[ACCURATE_BED_LEVELING_POINTS*ACCURATE_BED_LEVELING_POINTS];
-            
-            
+
+
             int probePointCounter = 0;
             bool zig = true;
-            
+
             for (int yProbe=FRONT_PROBE_BED_POSITION; yProbe <= BACK_PROBE_BED_POSITION; yProbe += yGridSpacing)
             {
               int xProbe, xInc;
@@ -1397,7 +1407,7 @@ void process_commands()
                 xInc = -xGridSpacing;
                 zig = true;
               }
-              
+
               for (int xCount=0; xCount < ACCURATE_BED_LEVELING_POINTS; xCount++)
               {
                 if (probePointCounter == 0)
@@ -1405,19 +1415,19 @@ void process_commands()
                   // raise before probing
                   do_blocking_move_to(current_position[X_AXIS], current_position[Y_AXIS], Z_RAISE_BEFORE_PROBING);
                 } else
-                {               
+                {
                   // raise extruder
                   do_blocking_move_to(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS] + Z_RAISE_BETWEEN_PROBINGS);
                 }
-                
-                
+
+
                 do_blocking_move_to(xProbe - X_PROBE_OFFSET_FROM_EXTRUDER, yProbe - Y_PROBE_OFFSET_FROM_EXTRUDER, current_position[Z_AXIS]);
-    
+
                 engage_z_probe();   // Engage Z Servo endstop if available
                 run_z_probe();
                 eqnBVector[probePointCounter] = current_position[Z_AXIS];
                 retract_z_probe();
-    
+
                 SERIAL_PROTOCOLPGM("Bed x: ");
                 SERIAL_PROTOCOL(xProbe);
                 SERIAL_PROTOCOLPGM(" y: ");
@@ -1425,7 +1435,7 @@ void process_commands()
                 SERIAL_PROTOCOLPGM(" z: ");
                 SERIAL_PROTOCOL(current_position[Z_AXIS]);
                 SERIAL_PROTOCOLPGM("\n");
-                
+
                 eqnAMatrix[probePointCounter + 0*ACCURATE_BED_LEVELING_POINTS*ACCURATE_BED_LEVELING_POINTS] = xProbe;
                 eqnAMatrix[probePointCounter + 1*ACCURATE_BED_LEVELING_POINTS*ACCURATE_BED_LEVELING_POINTS] = yProbe;
                 eqnAMatrix[probePointCounter + 2*ACCURATE_BED_LEVELING_POINTS*ACCURATE_BED_LEVELING_POINTS] = 1;
@@ -1434,25 +1444,25 @@ void process_commands()
               }
             }
             clean_up_after_endstop_move();
-            
+
             // solve lsq problem
             double *plane_equation_coefficients = qr_solve(ACCURATE_BED_LEVELING_POINTS*ACCURATE_BED_LEVELING_POINTS, 3, eqnAMatrix, eqnBVector);
-            
+
             SERIAL_PROTOCOLPGM("Eqn coefficients: a: ");
             SERIAL_PROTOCOL(plane_equation_coefficients[0]);
             SERIAL_PROTOCOLPGM(" b: ");
             SERIAL_PROTOCOL(plane_equation_coefficients[1]);
             SERIAL_PROTOCOLPGM(" d: ");
             SERIAL_PROTOCOLLN(plane_equation_coefficients[2]);
-            
-            
+
+
             set_bed_level_equation_lsq(plane_equation_coefficients);
-            
+
             free(plane_equation_coefficients);
-            
+
 #else // ACCURATE_BED_LEVELING not defined
-            
-            
+
+
             // prob 1
             do_blocking_move_to(current_position[X_AXIS], current_position[Y_AXIS], Z_RAISE_BEFORE_PROBING);
             do_blocking_move_to(LEFT_PROBE_BED_POSITION - X_PROBE_OFFSET_FROM_EXTRUDER, BACK_PROBE_BED_POSITION - Y_PROBE_OFFSET_FROM_EXTRUDER, current_position[Z_AXIS]);
@@ -1508,8 +1518,8 @@ void process_commands()
             clean_up_after_endstop_move();
 
             set_bed_level_equation(z_at_xLeft_yFront, z_at_xRight_yFront, z_at_xLeft_yBack);
-         
-            
+
+
 #endif // ACCURATE_BED_LEVELING
             st_synchronize();
 
@@ -1813,10 +1823,20 @@ void process_commands()
       #endif
 
         SERIAL_PROTOCOLPGM(" @:");
+      #ifdef EXTRUDER_WATTS
+        SERIAL_PROTOCOL((EXTRUDER_WATTS * getHeaterPower(tmp_extruder))/127);
+        SERIAL_PROTOCOLPGM("W");
+      #else
         SERIAL_PROTOCOL(getHeaterPower(tmp_extruder));
+      #endif
 
         SERIAL_PROTOCOLPGM(" B@:");
+      #ifdef BED_WATTS
+        SERIAL_PROTOCOL((BED_WATTS * getHeaterPower(-1))/127);
+        SERIAL_PROTOCOLPGM("W");
+      #else
         SERIAL_PROTOCOL(getHeaterPower(-1));
+      #endif
 
         #ifdef SHOW_TEMP_ADC_VALUES
           #if defined(TEMP_BED_PIN) && TEMP_BED_PIN > -1
@@ -2195,6 +2215,34 @@ void process_commands()
       }
       break;
     #endif //BLINKM
+    case 200: // M200 D<millimeters> set filament diameter and set E axis units to cubic millimeters (use S0 to set back to millimeters).
+      {
+        float area = .0;
+        float radius = .0;
+        if(code_seen('D')) {
+          radius = (float)code_value() * .5;
+          if(radius == 0) {
+            area = 1;
+          } else {
+            area = M_PI * pow(radius, 2);
+          }
+        } else {
+          //reserved for setting filament diameter via UFID or filament measuring device
+          break;
+        }
+        tmp_extruder = active_extruder;
+        if(code_seen('T')) {
+          tmp_extruder = code_value();
+          if(tmp_extruder >= EXTRUDERS) {
+            SERIAL_ECHO_START;
+            SERIAL_ECHO(MSG_M200_INVALID_EXTRUDER);
+          }
+          SERIAL_ECHOLN(tmp_extruder);
+          break;
+        }
+        volumetric_multiplier[tmp_extruder] = 1 / area;
+      }
+      break;
     case 201: // M201
       for(int8_t i=0; i < NUM_AXIS; i++)
       {
@@ -2436,7 +2484,7 @@ void process_commands()
       break;
     #endif // NUM_SERVOS > 0
 
-    #if LARGE_FLASH == true && ( BEEPER > 0 || defined(ULTRALCD) )
+    #if (LARGE_FLASH == true && ( BEEPER > 0 || defined(ULTRALCD) || defined(LCD_USE_I2C_BUZZER)))
     case 300: // M300
     {
       int beepS = code_seen('S') ? code_value() : 110;
@@ -2448,7 +2496,9 @@ void process_commands()
           delay(beepP);
           noTone(BEEPER);
         #elif defined(ULTRALCD)
-          lcd_buzz(beepS, beepP);
+		  lcd_buzz(beepS, beepP);
+		#elif defined(LCD_USE_I2C_BUZZER)
+		  lcd_buzz(beepP, beepS);
         #endif
       }
       else
@@ -2706,7 +2756,11 @@ void process_commands()
             WRITE(BEEPER,LOW);
             delay(3);
           #else
-            lcd_buzz(1000/6,100);
+			#if !defined(LCD_FEEDBACK_FREQUENCY_HZ) || !defined(LCD_FEEDBACK_FREQUENCY_DURATION_MS)
+              lcd_buzz(1000/6,100);
+			#else
+			  lcd_buzz(LCD_FEEDBACK_FREQUENCY_DURATION_MS,LCD_FEEDBACK_FREQUENCY_HZ);
+			#endif
           #endif
           }
         }
@@ -2793,6 +2847,12 @@ void process_commands()
       #endif
       #ifdef MOTOR_CURRENT_PWM_E_PIN
         if(code_seen('E')) digipot_current(2, code_value());
+      #endif
+      #ifdef DIGIPOT_I2C
+        // this one uses actual amps in floating point
+        for(int i=0;i<NUM_AXIS;i++) if(code_seen(axis_codes[i])) digipot_i2c_set_current(i, code_value());
+        // for each additional extruder (named B,C,D,E..., channels 4,5,6,7...)
+        for(int i=NUM_AXIS;i<DIGIPOT_I2C_NUM_CHANNELS;i++) if(code_seen('B'+i-NUM_AXIS)) digipot_i2c_set_current(i, code_value());
       #endif
     }
     break;
@@ -3303,8 +3363,8 @@ void manage_inactivity()
      enable_e0();
      float oldepos=current_position[E_AXIS];
      float oldedes=destination[E_AXIS];
-     plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS],
-                      current_position[E_AXIS]+EXTRUDER_RUNOUT_EXTRUDE*EXTRUDER_RUNOUT_ESTEPS/axis_steps_per_unit[E_AXIS],
+     plan_buffer_line(destination[X_AXIS], destination[Y_AXIS], destination[Z_AXIS],
+                      destination[E_AXIS]+EXTRUDER_RUNOUT_EXTRUDE*EXTRUDER_RUNOUT_ESTEPS/axis_steps_per_unit[E_AXIS],
                       EXTRUDER_RUNOUT_SPEED/60.*EXTRUDER_RUNOUT_ESTEPS/axis_steps_per_unit[E_AXIS], active_extruder);
      current_position[E_AXIS]=oldepos;
      destination[E_AXIS]=oldedes;
