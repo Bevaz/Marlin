@@ -19,7 +19,7 @@
 #define STRING_CONFIG_H_AUTHOR "(Extensio.ru)" //Who made the changes.
 
 //                      |01234567890123456789|
-#define VERSION_BASE    "Joysmaker: 14.01"
+#define VERSION_BASE    "Joysmaker: 14.02"
 #ifndef VERSION_PROFILE
 #define VERSION_PROFILE "Extensio.ru"
 #endif

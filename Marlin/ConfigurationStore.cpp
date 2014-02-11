@@ -86,9 +86,6 @@ void Config_StoreSettings()
     int lcd_contrast = 32;
   #endif
   EEPROM_WRITE_VAR(i,lcd_contrast);
-  #ifdef ENABLE_AUTO_BED_LEVELING
-  EEPROM_WRITE_VAR(i,z_probe_offset);
-  #endif
   char ver2[4]=EEPROM_VERSION;
   i=EEPROM_OFFSET;
   EEPROM_WRITE_VAR(i,ver2); // validate data
@@ -170,12 +167,6 @@ void Config_PrintSettings()
     SERIAL_ECHOPAIR(" D" ,unscalePID_d(Kd));
     SERIAL_ECHOLN(""); 
 #endif
-#ifdef ENABLE_AUTO_BED_LEVELING
-    SERIAL_ECHO_START;
-    SERIAL_ECHOLNPGM("Z home offset from the probe:");
-    SERIAL_ECHO_START;
-    SERIAL_ECHOLN(z_probe_offset); 
-#endif
 } 
 #endif
 
@@ -232,9 +223,6 @@ void Config_RetrieveSettings()
         int lcd_contrast;
         #endif
         EEPROM_READ_VAR(i,lcd_contrast);
-        #ifdef ENABLE_AUTO_BED_LEVELING
-        EEPROM_READ_VAR(i,z_probe_offset);
-        #endif
 
 		// Call updatePID (similar to when we have processed M301)
 		updatePID();
@@ -304,9 +292,6 @@ void Config_ResetDefault()
     Kc = DEFAULT_Kc;
 #endif//PID_ADD_EXTRUSION_RATE
 #endif//PIDTEMP
-#ifdef ENABLE_AUTO_BED_LEVELING
-	z_probe_offset = 0;
-#endif
 
 SERIAL_ECHO_START;
 SERIAL_ECHOLNPGM("Hardcoded Default Settings Loaded");
