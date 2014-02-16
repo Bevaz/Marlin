@@ -964,7 +964,9 @@ static void lcd_control_motion_menu()
 {
     START_MENU();
     MENU_ITEM(back, MSG_CONTROL, lcd_control_menu);
+#ifdef ENABLE_AUTO_BED_LEVELING
     MENU_ITEM_EDIT(float51, MSG_ZPROBE_ZOFFSET, &zprobe_zoffset, -50, 50);
+#endif
 #ifdef SERVO_ENDSTOPS
 if (servo_endstops[X_AXIS] > -1) {
 	MENU_ITEM(submenu, MSG_X_SERVO_EXTEND, x_servo_extend);
@@ -979,7 +981,7 @@ if (servo_endstops[Z_AXIS] > -1) {
     MENU_ITEM(submenu, MSG_Z_SERVO_RETRACT, z_servo_retract);
 }
 #endif
-	MENU_ITEM_EDIT(float5, MSG_ACC, &acceleration, 500, 99000);
+    MENU_ITEM_EDIT(float5, MSG_ACC, &acceleration, 500, 99000);
     MENU_ITEM_EDIT(float3, MSG_VXY_JERK, &max_xy_jerk, 1, 990);
     MENU_ITEM_EDIT(float52, MSG_VZ_JERK, &max_z_jerk, 0.1, 990);
     MENU_ITEM_EDIT(float3, MSG_VE_JERK, &max_e_jerk, 1, 990);
