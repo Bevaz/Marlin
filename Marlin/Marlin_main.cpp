@@ -1488,9 +1488,9 @@ void process_commands()
               for (int xCount=0; xCount < AUTO_BED_LEVELING_GRID_POINTS; xCount++)
               {
                 float z_before;
-				bool engage_probe = false;
-				bool retract_probe = false;
-				if (probePointCounter == 0)
+                bool engage_probe = false;
+                bool retract_probe = false;
+                if (probePointCounter == 0)
                 {
                   // raise before probing
                   z_before = Z_RAISE_BEFORE_PROBING;
@@ -1500,10 +1500,10 @@ void process_commands()
                   // raise extruder
                   z_before = current_position[Z_AXIS] + Z_RAISE_BETWEEN_PROBINGS;
                 }
-				if (xCount == AUTO_BED_LEVELING_GRID_POINTS - 1)
+                if (probePointCounter == AUTO_BED_LEVELING_GRID_POINTS * AUTO_BED_LEVELING_GRID_POINTS - 1)
                 {
                   retract_probe = true;
-				}
+                }
                 float measured_z = probe_pt(xProbe, yProbe, z_before, engage_probe, retract_probe);
 
                 eqnBVector[probePointCounter] = measured_z;
