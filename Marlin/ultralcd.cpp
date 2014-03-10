@@ -458,7 +458,6 @@ static void lcd_calibrate_z_offset_wait()
       lcdDrawUpdate = 1;
       lcd_implementation_drawedit(PSTR(MSG_ZPROBE_ZOFFSET), ftostr51(zprobe_zoffset));
       currentMenu = lcd_calibrate_z_offset_tune;
-//      timeoutToStatus = millis() + LCD_TIMEOUT_TO_STATUS;
       pauseTimeoutToStatus = false;
     }
     else
