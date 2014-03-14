@@ -402,8 +402,8 @@ const unsigned int dropsegments=5; //everything with less than this number of st
 #ifdef FWRETRACT
   #define MIN_RETRACT 0.1                //minimum extruded mm to accept a automatic gcode retraction attempt
   #define RETRACT_LENGTH 2.5               //default retract length (positive mm)
-  #define RETRACT_FEEDRATE 40*60         //default feedrate for retracting
-  #define RETRACT_ZLIFT 0.2                //default retract Z-lift
+  #define RETRACT_FEEDRATE 80*60         //default feedrate for retracting
+  #define RETRACT_ZLIFT 0.1                //default retract Z-lift
   #define RETRACT_RECOVER_LENGTH 0       //default additional recover length (mm, added to retract length when recovering)
   #define RETRACT_RECOVER_FEEDRATE 8*60  //default feedrate for recovering from retraction
 #endif
