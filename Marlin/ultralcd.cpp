@@ -406,7 +406,7 @@ static void lcd_calibrate_z_offset_tune()
         zprobe_zoffset+=0.1*float((int)encoderPosition);
 
         current_position[Z_AXIS]-=0.1*float((int)encoderPosition);
-        if (min_software_endstops && current_position[Z_AXIS] < Z_MIN_POS)
+        if (min_software_endstops && current_position[Z_AXIS] < Z_MIN_POS-5)
             current_position[Z_AXIS] = Z_MIN_POS;
         if (max_software_endstops && current_position[Z_AXIS] > Z_MAX_POS)
             current_position[Z_AXIS] = Z_MAX_POS;
