@@ -71,6 +71,7 @@
 // 81 = Printrboard (AT90USB1286)
 // 82 = Brainwave (AT90USB646)
 // 83 = SAV Mk-I (AT90USB1286)
+// 84 = Teensy++2.0 (AT90USB1286) // CLI compile: DEFINES=AT90USBxx_TEENSYPP_ASSIGNMENTS HARDWARE_MOTHERBOARD=84  make
 // 9  = Gen3+
 // 70 = Megatronics
 // 701= Megatronics v2.0
@@ -142,6 +143,7 @@
 // 1010 is Pt1000 with 1k pullup (non standard)
 // 147 is Pt100 with 4k7 pullup
 // 110 is Pt100 with 1k pullup (non standard)
+// 70 is 500C thermistor for Pico hot end
 
 #define TEMP_SENSOR_0 -1
 #ifndef TEMP_SENSOR_1
@@ -262,6 +264,44 @@
 #define EXTRUDE_MINTEMP 170
 #define EXTRUDE_MAXLENGTH (X_MAX_LENGTH+Y_MAX_LENGTH) //prevent extrusion of very large distances.
 
+/*================== Thermal Runaway Protection ==============================
+This is a feature to protect your printer from burn up in flames if it has
+a thermistor coming off place (this happened to a friend of mine recently and
+motivated me writing this feature).
+
+The issue: If a thermistor come off, it will read a lower temperature than actual.
+The system will turn the heater on forever, burning up the filament and anything
+else around.
+
+After the temperature reaches the target for the first time, this feature will 
+start measuring for how long the current temperature stays below the target 
+minus _HYSTERESIS (set_temperature - THERMAL_RUNAWAY_PROTECTION_HYSTERESIS).
+
+If it stays longer than _PERIOD, it means the thermistor temperature
+cannot catch up with the target, so something *may be* wrong. Then, to be on the
+safe side, the system will he halt.
+
+Bear in mind the count down will just start AFTER the first time the 
+thermistor temperature is over the target, so you will have no problem if
+your extruder heater takes 2 minutes to hit the target on heating.
+
+*/
+// If you want to enable this feature for all your extruder heaters,
+// uncomment the 2 defines below:
+
+// Parameters for all extruder heaters
+//#define THERMAL_RUNAWAY_PROTECTION_PERIOD 40 //in seconds
+//#define THERMAL_RUNAWAY_PROTECTION_HYSTERESIS 4 // in degree Celsius
+
+// If you want to enable this feature for your bed heater,
+// uncomment the 2 defines below:
+
+// Parameters for the bed heater
+//#define THERMAL_RUNAWAY_PROTECTION_BED_PERIOD 20 //in seconds
+//#define THERMAL_RUNAWAY_PROTECTION_BED_HYSTERESIS 2 // in degree Celsius
+//===========================================================================
+
+
 //===========================================================================
 //=============================Mechanical Settings===========================
 //===========================================================================
@@ -317,6 +357,7 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 #define DISABLE_Y false
 #define DISABLE_Z false
 #define DISABLE_E false // For all extruders
+#define DISABLE_INACTIVE_EXTRUDER true //disable only inactive extruders and keep active extruder enabled
 
 #define INVERT_X_DIR true    // for Mendel set to false, for Orca set to true
 #define INVERT_Y_DIR false    // for Mendel set to true, for Orca set to false
