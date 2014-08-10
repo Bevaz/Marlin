@@ -19,9 +19,9 @@
 #define STRING_CONFIG_H_AUTHOR "(David Braam)" //Who made the changes.
 
 //                      |01234567890123456789|
-#define VERSION_BASE    "Ultimaker: 13.12"
+#define VERSION_BASE    "Zbot: FDM-i1"
 #ifndef VERSION_PROFILE
-#define VERSION_PROFILE "Github checkout"
+#define VERSION_PROFILE "Extensio Group"
 #endif
 
 #define VERSION_STRING  VERSION_BASE " (" VERSION_PROFILE ")"
@@ -145,7 +145,7 @@
 // 110 is Pt100 with 1k pullup (non standard)
 // 70 is 500C thermistor for Pico hot end
 
-#define TEMP_SENSOR_0 -1
+#define TEMP_SENSOR_0 1
 #ifndef TEMP_SENSOR_1
 #define TEMP_SENSOR_1 0
 #endif
@@ -376,11 +376,11 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 #define max_software_endstops false  //If true, axis won't move to coordinates greater than the defined lengths below.
 
 // Travel limits after homing
-#define X_MAX_POS 205
+#define X_MAX_POS 155
 #define X_MIN_POS 0
-#define Y_MAX_POS 205
+#define Y_MAX_POS 155
 #define Y_MIN_POS 0
-#define Z_MAX_POS 200
+#define Z_MAX_POS 145
 #define Z_MIN_POS 0
 
 #define X_MAX_LENGTH (X_MAX_POS - X_MIN_POS)
