@@ -1442,6 +1442,22 @@
   #endif
 #endif //ULTRA_LCD
 
+  #ifdef NUM_SERVOS
+    #define SERVO0_PIN         13
+
+    #if NUM_SERVOS > 1
+      #define SERVO1_PIN         6 //TODO
+    #endif
+
+    #if NUM_SERVOS > 2
+      #define SERVO2_PIN         5 //TODO
+    #endif
+
+    #if NUM_SERVOS > 3
+      #define SERVO3_PIN         4 //TODO
+    #endif
+  #endif
+
 #endif // ULTIMAKER
 
 #if MB(ULTIMAKER_OLD)
