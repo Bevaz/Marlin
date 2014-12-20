@@ -1122,18 +1122,22 @@ static void retract_z_probe() {
 }
 
 /// Probe bed height at position (x,y), returns the measured z value
-static float probe_pt(float x, float y, float z_before) {
+static float probe_pt(float x, float y, float z_before, bool engage_retract_z_probe) {
   // move to right place
   do_blocking_move_to(current_position[X_AXIS], current_position[Y_AXIS], z_before);
   do_blocking_move_to(x - X_PROBE_OFFSET_FROM_EXTRUDER, y - Y_PROBE_OFFSET_FROM_EXTRUDER, current_position[Z_AXIS]);
 
 #ifndef Z_PROBE_SLED
-  engage_z_probe();   // Engage Z Servo endstop if available
+  if(engage_retract_z_probe){
+      engage_z_probe();   // Engage Z Servo endstop if available
+  }
 #endif // Z_PROBE_SLED
   run_z_probe();
   float measured_z = current_position[Z_AXIS];
 #ifndef Z_PROBE_SLED
-  retract_z_probe();
+  if(engage_retract_z_probe){
+    retract_z_probe();
+  }
 #endif // Z_PROBE_SLED
 
   SERIAL_PROTOCOLPGM(MSG_BED);
@@ -1688,6 +1692,7 @@ void process_commands()
             int probePointCounter = 0;
             bool zig = true;
 
+            engage_z_probe();
             for (int yProbe=FRONT_PROBE_BED_POSITION; yProbe <= BACK_PROBE_BED_POSITION; yProbe += yGridSpacing)
             {
               int xProbe, xInc;
@@ -1718,7 +1723,7 @@ void process_commands()
                   z_before = current_position[Z_AXIS] + Z_RAISE_BETWEEN_PROBINGS;
                 }
 
-                float measured_z = probe_pt(xProbe, yProbe, z_before);
+                float measured_z = probe_pt(xProbe, yProbe, z_before, false);
 
                 eqnBVector[probePointCounter] = measured_z;
 
@@ -1729,6 +1734,7 @@ void process_commands()
                 xProbe += xInc;
               }
             }
+            retract_z_probe();
             clean_up_after_endstop_move();
 
             // solve lsq problem
@@ -1750,13 +1756,13 @@ void process_commands()
 
             // Probe at 3 arbitrary points
             // probe 1
-            float z_at_pt_1 = probe_pt(ABL_PROBE_PT_1_X, ABL_PROBE_PT_1_Y, Z_RAISE_BEFORE_PROBING);
+            float z_at_pt_1 = probe_pt(ABL_PROBE_PT_1_X, ABL_PROBE_PT_1_Y, Z_RAISE_BEFORE_PROBING, true);
 
             // probe 2
-            float z_at_pt_2 = probe_pt(ABL_PROBE_PT_2_X, ABL_PROBE_PT_2_Y, current_position[Z_AXIS] + Z_RAISE_BETWEEN_PROBINGS);
+            float z_at_pt_2 = probe_pt(ABL_PROBE_PT_2_X, ABL_PROBE_PT_2_Y, current_position[Z_AXIS] + Z_RAISE_BETWEEN_PROBINGS, true);
 
             // probe 3
-            float z_at_pt_3 = probe_pt(ABL_PROBE_PT_3_X, ABL_PROBE_PT_3_Y, current_position[Z_AXIS] + Z_RAISE_BETWEEN_PROBINGS);
+            float z_at_pt_3 = probe_pt(ABL_PROBE_PT_3_X, ABL_PROBE_PT_3_Y, current_position[Z_AXIS] + Z_RAISE_BETWEEN_PROBINGS, true);
 
             clean_up_after_endstop_move();
 
