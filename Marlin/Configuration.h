@@ -26,7 +26,7 @@
 #define STRING_CONFIG_H_AUTHOR "(Extensio Group)" // Who made the changes.
 
 //                      |01234567890123456789|
-#define VERSION_BASE    "Zbot: FDM-i1"
+#define VERSION_BASE    "Zbot: FDM-i2"
 #ifndef VERSION_PROFILE
 #define VERSION_PROFILE "Extensio Group"
 #endif
@@ -150,7 +150,7 @@
 // 147 is Pt100 with 4k7 pullup
 // 110 is Pt100 with 1k pullup (non standard)
 
-#define TEMP_SENSOR_0 11
+#define TEMP_SENSOR_0 1
 #define TEMP_SENSOR_1 0
 #define TEMP_SENSOR_2 0
 #define TEMP_SENSOR_BED 0
@@ -379,7 +379,7 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 #define max_software_endstops false  //If true, axis won't move to coordinates greater than the defined lengths below.
 
 // Travel limits after homing
-#define X_MAX_POS 155
+#define X_MAX_POS 255
 #define X_MIN_POS 0
 #define Y_MAX_POS 155
 #define Y_MIN_POS 0
